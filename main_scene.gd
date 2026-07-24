@@ -1,5 +1,7 @@
 extends Control
 
+@export var reset_text_timer: Timer
+
 @export var start_menu: Control
 @export var username_text_edit: TextEdit
 @export var host_button: Button
@@ -13,11 +15,13 @@ extends Control
 const PORT: int = 9999
 const USERNAME_ERROR_TEXT: String = "Please enter a username."
 
+var lobby_chat: String = "" # This variable is only used by the host.
 var username: String
 
 func _ready() -> void:
 	multiplayer.connected_to_server.connect(made_connection)
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	reset_text_timer.wait_time = 0.1
 	warning_label.hide()
 	chat_text_edit.editable = false
 	open_start_menu()
@@ -75,4 +79,24 @@ func _on_join_button_pressed() -> void:
 		warning_label.show()
 
 func _on_send_button_pressed() -> void:
-	pass # Replace with function body.
+	message_text_edit.grab_focus()
+	send_message_and_reset_text("\n" + username + ": " + message_text_edit.text)
+
+func send_message_and_reset_text(message: String) -> void:
+	send_message.rpc(message)
+	reset_text_timer.start()
+
+@rpc("any_peer", "call_local", "reliable")
+func send_message(message: String) -> void:
+	if multiplayer.multiplayer_peer.get_unique_id() == 1: # If the sender is host
+		lobby_chat += message
+		update_chat.rpc(lobby_chat)
+
+@rpc("authority", "call_local", "reliable")
+func update_chat(chat_string: String) -> void:
+	chat_text_edit.text = chat_string
+	chat_text_edit.scroll_vertical = chat_text_edit.get_line_count()
+
+func _on_reset_text_timer_timeout() -> void:
+	reset_text_timer.stop()
+	message_text_edit.text = ""
