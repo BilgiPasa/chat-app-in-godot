@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dieqc6fxr55eo" path="res://main_scene.gd" id="1_0f027"]
 
-[node name="MainScene" type="Control" unique_id=2032507651 node_paths=PackedStringArray("reset_text_timer", "revert_text_timer", "dots_timer", "version_label", "start_menu", "username_text_edit", "host_button", "join_button", "warning_label", "chat_menu", "chat_text_edit", "message_text_edit", "send_button")]
+[node name="MainScene" type="Control" unique_id=2032507651 node_paths=PackedStringArray("reset_text_timer", "revert_text_timer", "dots_timer", "version_label", "start_menu", "username_text_edit", "host_button", "join_button", "warning_label", "chat_menu", "chat_text_edit", "message_text_edit", "send_button", "host_or_client_label")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,6 +23,7 @@ chat_menu = NodePath("ChatMenu")
 chat_text_edit = NodePath("ChatMenu/ChatTextEdit")
 message_text_edit = NodePath("ChatMenu/MessageTextEdit")
 send_button = NodePath("ChatMenu/SendButton")
+host_or_client_label = NodePath("ChatMenu/HostOrClientLabel")
 
 [node name="ResetTextTimer" type="Timer" parent="." unique_id=1753374641]
 
@@ -43,6 +44,7 @@ offset_right = -17.0
 offset_bottom = -12.0
 grow_horizontal = 0
 grow_vertical = 0
+theme_override_colors/font_color = Color(0.78431374, 0.78431374, 0.78431374, 1)
 theme_override_font_sizes/font_size = 20
 text = "vA.B"
 
@@ -224,6 +226,20 @@ focus_next = NodePath("../MessageTextEdit")
 focus_previous = NodePath("../MessageTextEdit")
 theme_override_font_sizes/font_size = 30
 text = "Send"
+
+[node name="HostOrClientLabel" type="Label" parent="ChatMenu" unique_id=645708433]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 25.0
+offset_top = -50.0
+offset_right = 173.0
+offset_bottom = -15.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.78431374, 0.78431374, 0.78431374, 1)
+theme_override_font_sizes/font_size = 25
+text = "Host / Client"
 
 [connection signal="timeout" from="ResetTextTimer" to="." method="_on_reset_text_timer_timeout"]
 [connection signal="timeout" from="RevertTextTimer" to="." method="_on_revert_text_timer_timeout"]

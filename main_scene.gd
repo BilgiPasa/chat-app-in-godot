@@ -15,6 +15,7 @@ extends Control
 @export var chat_text_edit: TextEdit
 @export var message_text_edit: TextEdit
 @export var send_button: Button
+@export var host_or_client_label: Label
 
 const PORT: int = 9999
 const TEXT_TIMERS_WAIT_SECONDS: float = 0.01
@@ -25,7 +26,7 @@ const USERNAME_ERROR_TEXT_3: String = "Please don't have a space\nat the end of 
 const TRYING_TO_CONNECT_TEXT: String = "Trying to connect to the server."
 
 var dots_of_the_text: int = 1 # For the dots_timer
-var lobby_chat: String = "" # This variable is only used by the host.
+var lobby_chat: String = "" # This variable is used by only the host.
 var username: String
 var temp_str: String # For storing texts temporarily
 
@@ -93,6 +94,7 @@ func _on_host_button_pressed() -> void:
 			return
 
 		multiplayer.multiplayer_peer = peer
+		host_or_client_label.text = "Host"
 		host_button.disabled = true
 		join_button.disabled = true
 		open_chat_menu()
@@ -121,6 +123,7 @@ func _on_join_button_pressed() -> void:
 			return
 
 		multiplayer.multiplayer_peer = peer
+		host_or_client_label.text = "Client"
 		host_button.disabled = true
 		join_button.disabled = true
 		show_warning_label_with_text(TRYING_TO_CONNECT_TEXT)
@@ -170,19 +173,21 @@ func _on_send_button_pressed() -> void:
 		send_message_and_reset_text("\n" + username + ": " + message_text_edit.text)
 
 func send_message_and_reset_text(message: String) -> void:
-	send_message.rpc(message)
+	send_message.rpc(message) # Call the send_message function remotely
 	reset_text_timer.start()
 
-@rpc("any_peer", "call_local", "reliable")
+# Add the given message to host's lobby_chat string variable and call the update_chat function with rpc
+@rpc("any_peer", "call_local", "reliable") # "any_peer" means that everyone can call this function remotely with rpc
 func send_message(message: String) -> void:
-	if multiplayer.multiplayer_peer.get_unique_id() == 1: # If the sender is host
+	if multiplayer.multiplayer_peer.get_unique_id() == 1: # If this function is called at host
 		lobby_chat += message
 		update_chat.rpc(lobby_chat)
 
-@rpc("authority", "call_local", "reliable")
+# Update the chat based on host's lobby_chat string variable
+@rpc("authority", "call_local", "reliable") # "authority" means that only the host can call this function with rpc
 func update_chat(chat_string: String) -> void:
 	chat_text_edit.text = chat_string
-	chat_text_edit.scroll_vertical = chat_text_edit.get_line_count()
+	chat_text_edit.scroll_vertical = chat_text_edit.get_line_count() # Automatically scroll the chat to the end
 
 func _on_reset_text_timer_timeout() -> void:
 	reset_text_timer.stop()
