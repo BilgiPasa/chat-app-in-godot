@@ -1,32 +1,36 @@
 extends Control
 
-@export var reset_text_timer: Timer
-@export var revert_text_timer: Timer
+@export var reset_text_timer: Timer # For sending message when pressed enter
+@export var revert_text_timer: Timer # For reverting text when pressed tab
+@export var dots_timer: Timer # For animating the dots of the warning label
 @export var version_label: Label
 
-@export var start_menu: Control
+@export var start_menu: Control # The menu that shows at start
 @export var username_text_edit: TextEdit
 @export var host_button: Button
 @export var join_button: Button
 @export var warning_label: Label
 
-@export var chat_menu: Control
+@export var chat_menu: Control # The chat menu
 @export var chat_text_edit: TextEdit
 @export var message_text_edit: TextEdit
 @export var send_button: Button
 
 const PORT: int = 9999
-const TEXT_TIMERS_WAIT_SECONDS: float = 0.1
+const TEXT_TIMERS_WAIT_SECONDS: float = 0.01
+const DOTS_TIMER_WAIT_SECONDS: float = 0.75
 const USERNAME_ERROR_TEXT: String = "Please enter a username."
-const USERNAME_ERROR_TEXT_2: String = "Please don't have a space at the start of the username."
-const USERNAME_ERROR_TEXT_3: String = "Please don't have a space at the end of the username."
+const USERNAME_ERROR_TEXT_2: String = "Please don't have a space\nat the start of the username."
+const USERNAME_ERROR_TEXT_3: String = "Please don't have a space\nat the end of the username."
+const TRYING_TO_CONNECT_TEXT: String = "Trying to connect to the server."
 
+var dots_of_the_text: int = 1 # For the dots_timer
 var lobby_chat: String = "" # This variable is only used by the host.
 var username: String
-var temp_str: String
+var temp_str: String # For storing texts temporarily
 
 enum RevertTypes{USERNAME, MESSAGE} # Types of text reverting when pressed tab
-var current_revert_type: RevertTypes
+var current_revert_type: RevertTypes # Used for reverting text when pressed tab
 var shift_tabbed_at_start_menu: bool = false # Used for determining what to grab focus after reverting the text at the start menu
 
 func _ready() -> void:
@@ -35,16 +39,18 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	reset_text_timer.wait_time = TEXT_TIMERS_WAIT_SECONDS
 	revert_text_timer.wait_time = TEXT_TIMERS_WAIT_SECONDS
+	dots_timer.wait_time = DOTS_TIMER_WAIT_SECONDS
 	version_label.text = "v" + str(ProjectSettings.get_setting("application/config/version"))
 	warning_label.hide()
 	chat_text_edit.editable = false
 	open_start_menu()
 
-func made_connection() -> void:
+func made_connection() -> void: # When clients enters a lobby
 	open_chat_menu()
 	send_message.rpc("\n[Client] " + username + " entered the lobby at " + Time.get_time_string_from_system())
 
-func failed_connection() -> void:
+func failed_connection() -> void: # When client fails to connect
+	dots_timer.stop()
 	show_warning_label_with_text("Could not connect to the server.")
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	host_button.disabled = false
@@ -74,9 +80,15 @@ func _on_host_button_pressed() -> void:
 	else:
 		username = username_text_edit.text
 		var peer = ENetMultiplayerPeer.new()
-		var error = peer.create_server(PORT)
+		var error: int = peer.create_server(PORT)
 
-		if error:
+		if error == 20: # If the error is ERR_CANT_CREATE
+			show_warning_label_with_text("Could not create a server.\nTry to join instead.")
+			return
+		elif error == 22: # If the error is ERR_ALREADY_IN_USE
+			show_warning_label_with_text("Could not create a server.\nYou are already in a server.")
+			return
+		elif error: # If there is an another error
 			show_warning_label_with_text("Could not create a server.\nENetMultiplayerPeer.create_server error " + str(error))
 			return
 
@@ -96,19 +108,26 @@ func _on_join_button_pressed() -> void:
 	else:
 		username = username_text_edit.text
 		var peer = ENetMultiplayerPeer.new()
-		var error = peer.create_client("127.0.0.1", PORT)
+		var error: int = peer.create_client("127.0.0.1", PORT) # Connect to localhost
 
-		if error:
+		if error == 20: # If the error is ERR_CANT_CREATE
+			show_warning_label_with_text("Could not connect to a server.\nTry to host instead.")
+			return
+		elif error == 22: # If the error is ERR_ALREADY_IN_USE
+			show_warning_label_with_text("Could not connect to a server.\nYou are already in a server.")
+			return
+		elif error: # If there is an another error
 			show_warning_label_with_text("Could not create a server.\nENetMultiplayerPeer.create_client error " + str(error))
 			return
 
 		multiplayer.multiplayer_peer = peer
 		host_button.disabled = true
 		join_button.disabled = true
-		show_warning_label_with_text("Trying to connect to the server.")
+		show_warning_label_with_text(TRYING_TO_CONNECT_TEXT)
+		dots_timer.start()
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("enter"):
+	if event.is_action_pressed("enter"): # If pressed enter
 		if start_menu.visible && username_text_edit.has_focus():
 			current_revert_type = RevertTypes.USERNAME
 			temp_str = username_text_edit.text
@@ -121,9 +140,8 @@ func _input(event: InputEvent) -> void:
 			else:
 				send_message_and_reset_text("\n" + username + ": " + temp_str)
 
-	if event.is_action_pressed("shift_tab"):
+	if event.is_action_pressed("tab"): # If pressed tab
 		if start_menu.visible && username_text_edit.has_focus():
-			shift_tabbed_at_start_menu = true
 			current_revert_type = RevertTypes.USERNAME
 			temp_str = username_text_edit.text
 			revert_text_timer.start()
@@ -131,8 +149,10 @@ func _input(event: InputEvent) -> void:
 			current_revert_type = RevertTypes.MESSAGE
 			temp_str = message_text_edit.text
 			revert_text_timer.start()
-	elif event.is_action_pressed("tab"):
+
+	if event.is_action_pressed("shift_tab"): # If pressed shift + tab
 		if start_menu.visible && username_text_edit.has_focus():
+			shift_tabbed_at_start_menu = true
 			current_revert_type = RevertTypes.USERNAME
 			temp_str = username_text_edit.text
 			revert_text_timer.start()
@@ -182,6 +202,17 @@ func _on_revert_text_timer_timeout() -> void:
 	elif current_revert_type == RevertTypes.MESSAGE:
 		message_text_edit.text = temp_str
 		send_button.grab_focus()
+
+func _on_dots_timer_timeout() -> void:
+	if dots_of_the_text == 1:
+		show_warning_label_with_text(TRYING_TO_CONNECT_TEXT + ".")
+		dots_of_the_text = 2
+	elif dots_of_the_text == 2:
+		show_warning_label_with_text(TRYING_TO_CONNECT_TEXT + "..")
+		dots_of_the_text = 3
+	else:
+		show_warning_label_with_text(TRYING_TO_CONNECT_TEXT)
+		dots_of_the_text = 1
 
 func text_is_null_or_empty(text: String) -> bool:
 	return text == null || text.is_empty()
