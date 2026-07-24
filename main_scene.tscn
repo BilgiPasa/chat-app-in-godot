@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dieqc6fxr55eo" path="res://main_scene.gd" id="1_0f027"]
 
-[node name="MainScene" type="Control" unique_id=2032507651 node_paths=PackedStringArray("reset_text_timer", "start_menu", "username_text_edit", "host_button", "join_button", "warning_label", "chat_menu", "chat_text_edit", "message_text_edit")]
+[node name="MainScene" type="Control" unique_id=2032507651 node_paths=PackedStringArray("reset_text_timer", "version_label", "start_menu", "username_text_edit", "host_button", "join_button", "warning_label", "chat_menu", "chat_text_edit", "message_text_edit")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,6 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0f027")
 reset_text_timer = NodePath("ResetTextTimer")
+version_label = NodePath("VersionLabel")
 start_menu = NodePath("StartMenu")
 username_text_edit = NodePath("StartMenu/UsernameTextEdit")
 host_button = NodePath("StartMenu/HostButton")
@@ -72,6 +73,12 @@ offset_right = 325.0
 offset_bottom = -90.0
 grow_horizontal = 2
 grow_vertical = 2
+focus_neighbor_left = NodePath(".")
+focus_neighbor_top = NodePath(".")
+focus_neighbor_right = NodePath(".")
+focus_neighbor_bottom = NodePath("../HostButton")
+focus_next = NodePath("../HostButton")
+focus_previous = NodePath("../JoinButton")
 theme_override_font_sizes/font_size = 30
 placeholder_text = "Enter username here"
 
@@ -88,6 +95,12 @@ offset_right = 99.5
 offset_bottom = 7.0
 grow_horizontal = 2
 grow_vertical = 2
+focus_neighbor_left = NodePath(".")
+focus_neighbor_top = NodePath("../UsernameTextEdit")
+focus_neighbor_right = NodePath(".")
+focus_neighbor_bottom = NodePath("../JoinButton")
+focus_next = NodePath("../JoinButton")
+focus_previous = NodePath("../UsernameTextEdit")
 theme_override_font_sizes/font_size = 35
 text = "Host Lobby"
 
@@ -104,6 +117,12 @@ offset_right = 92.0
 offset_bottom = 97.0
 grow_horizontal = 2
 grow_vertical = 2
+focus_neighbor_left = NodePath(".")
+focus_neighbor_top = NodePath("../HostButton")
+focus_neighbor_right = NodePath(".")
+focus_neighbor_bottom = NodePath(".")
+focus_next = NodePath("../UsernameTextEdit")
+focus_previous = NodePath("../HostButton")
 theme_override_font_sizes/font_size = 35
 text = "Join Lobby"
 
@@ -160,9 +179,15 @@ anchor_bottom = 0.5
 offset_left = -300.0
 offset_top = 180.0
 offset_right = 200.0
-offset_bottom = 245.0
+offset_bottom = 240.0
 grow_horizontal = 2
 grow_vertical = 2
+focus_neighbor_left = NodePath(".")
+focus_neighbor_top = NodePath(".")
+focus_neighbor_right = NodePath("../SendButton")
+focus_neighbor_bottom = NodePath(".")
+focus_next = NodePath("../SendButton")
+focus_previous = NodePath("../SendButton")
 theme_override_font_sizes/font_size = 30
 
 [node name="SendButton" type="Button" parent="ChatMenu" unique_id=1961071675]
@@ -175,9 +200,15 @@ anchor_bottom = 0.5
 offset_left = 205.0
 offset_top = 180.0
 offset_right = 300.0
-offset_bottom = 245.0
+offset_bottom = 240.0
 grow_horizontal = 2
 grow_vertical = 2
+focus_neighbor_left = NodePath("../MessageTextEdit")
+focus_neighbor_top = NodePath(".")
+focus_neighbor_right = NodePath(".")
+focus_neighbor_bottom = NodePath(".")
+focus_next = NodePath("../MessageTextEdit")
+focus_previous = NodePath("../MessageTextEdit")
 theme_override_font_sizes/font_size = 30
 text = "Send"
 

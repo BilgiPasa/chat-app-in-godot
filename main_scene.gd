@@ -1,6 +1,7 @@
 extends Control
 
 @export var reset_text_timer: Timer
+@export var version_label: Label
 
 @export var start_menu: Control
 @export var username_text_edit: TextEdit
@@ -14,6 +15,8 @@ extends Control
 
 const PORT: int = 9999
 const USERNAME_ERROR_TEXT: String = "Please enter a username."
+const USERNAME_ERROR_TEXT_2: String = "Please don't have a space at the start of the username."
+const USERNAME_ERROR_TEXT_3: String = "Please don't have a space at the end of the username."
 
 var lobby_chat: String = "" # This variable is only used by the host.
 var username: String
@@ -22,6 +25,7 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(made_connection)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	reset_text_timer.wait_time = 0.1
+	version_label.text = "v" + str(ProjectSettings.get_setting("application/config/version"))
 	warning_label.hide()
 	chat_text_edit.editable = false
 	open_start_menu()
@@ -44,7 +48,13 @@ func open_chat_menu() -> void:
 	message_text_edit.grab_focus()
 
 func _on_host_button_pressed() -> void:
-	if username_text_edit.text == null || username_text_edit.text.is_empty():
+	if text_is_null_or_empty(username_text_edit.text): # If the username is null or empty
+		warning_label.text = USERNAME_ERROR_TEXT
+		warning_label.show()
+	elif username_text_edit.text[0] == " ": # If the username's first character is a space
+		warning_label.text = USERNAME_ERROR_TEXT
+		warning_label.show()
+	elif username_text_edit.text[username_text_edit.text.length() - 1] == " ": # If the username's last character is a space
 		warning_label.text = USERNAME_ERROR_TEXT
 		warning_label.show()
 	else:
@@ -61,7 +71,13 @@ func _on_host_button_pressed() -> void:
 		open_chat_menu()
 
 func _on_join_button_pressed() -> void:
-	if username_text_edit.text == null || username_text_edit.text.is_empty():
+	if text_is_null_or_empty(username_text_edit.text): # If the username is null or empty
+		warning_label.text = USERNAME_ERROR_TEXT
+		warning_label.show()
+	elif username_text_edit.text[0] == " ": # If the username's first character is a space
+		warning_label.text = USERNAME_ERROR_TEXT
+		warning_label.show()
+	elif username_text_edit.text[username_text_edit.text.length() - 1] == " ": # If the username's last character is a space
 		warning_label.text = USERNAME_ERROR_TEXT
 		warning_label.show()
 	else:
@@ -80,7 +96,11 @@ func _on_join_button_pressed() -> void:
 
 func _on_send_button_pressed() -> void:
 	message_text_edit.grab_focus()
-	send_message_and_reset_text("\n" + username + ": " + message_text_edit.text)
+
+	if text_is_null_or_empty(message_text_edit.text) || text_is_full_of_spaces(message_text_edit.text): # If the message is null or empty or full of spaces
+		reset_text_timer.start()
+	else:
+		send_message_and_reset_text("\n" + username + ": " + message_text_edit.text)
 
 func send_message_and_reset_text(message: String) -> void:
 	send_message.rpc(message)
@@ -100,3 +120,13 @@ func update_chat(chat_string: String) -> void:
 func _on_reset_text_timer_timeout() -> void:
 	reset_text_timer.stop()
 	message_text_edit.text = ""
+
+func text_is_null_or_empty(text: String) -> bool:
+	return text == null || text.is_empty()
+
+func text_is_full_of_spaces(text: String) -> bool:
+	for i in range(0, text.length()):
+		if text[i] != " ": # If there is a character which is not space
+			return false
+
+	return true
