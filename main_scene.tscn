@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dieqc6fxr55eo" path="res://main_scene.gd" id="1_0f027"]
 
-[node name="MainScene" type="Control" unique_id=2032507651 node_paths=PackedStringArray("reset_text_timer", "version_label", "start_menu", "username_text_edit", "host_button", "join_button", "warning_label", "chat_menu", "chat_text_edit", "message_text_edit")]
+[node name="MainScene" type="Control" unique_id=2032507651 node_paths=PackedStringArray("reset_text_timer", "revert_text_timer", "version_label", "start_menu", "username_text_edit", "host_button", "join_button", "warning_label", "chat_menu", "chat_text_edit", "message_text_edit", "send_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,6 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0f027")
 reset_text_timer = NodePath("ResetTextTimer")
+revert_text_timer = NodePath("RevertTextTimer")
 version_label = NodePath("VersionLabel")
 start_menu = NodePath("StartMenu")
 username_text_edit = NodePath("StartMenu/UsernameTextEdit")
@@ -20,8 +21,11 @@ warning_label = NodePath("StartMenu/WarningLabel")
 chat_menu = NodePath("ChatMenu")
 chat_text_edit = NodePath("ChatMenu/ChatTextEdit")
 message_text_edit = NodePath("ChatMenu/MessageTextEdit")
+send_button = NodePath("ChatMenu/SendButton")
 
 [node name="ResetTextTimer" type="Timer" parent="." unique_id=1753374641]
+
+[node name="RevertTextTimer" type="Timer" parent="." unique_id=530097133]
 
 [node name="VersionLabel" type="Label" parent="." unique_id=1321091870]
 layout_mode = 1
@@ -213,6 +217,7 @@ theme_override_font_sizes/font_size = 30
 text = "Send"
 
 [connection signal="timeout" from="ResetTextTimer" to="." method="_on_reset_text_timer_timeout"]
+[connection signal="timeout" from="RevertTextTimer" to="." method="_on_revert_text_timer_timeout"]
 [connection signal="pressed" from="StartMenu/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="StartMenu/JoinButton" to="." method="_on_join_button_pressed"]
 [connection signal="pressed" from="ChatMenu/SendButton" to="." method="_on_send_button_pressed"]
