@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dieqc6fxr55eo" path="res://main_scene.gd" id="1_0f027"]
 
-[node name="MainScene" type="Control" unique_id=2032507651 node_paths=PackedStringArray("reset_text_timer", "revert_text_timer", "dots_timer", "version_label", "start_menu", "username_text_edit", "host_button", "join_button", "warning_label", "chat_menu", "chat_text_edit", "message_text_edit", "send_button", "host_or_client_label")]
+[node name="MainScene" type="Control" unique_id=2032507651 node_paths=PackedStringArray("reset_text_timer", "revert_text_timer", "dots_timer", "version_label", "start_menu", "username_text_edit", "host_button", "join_button", "start_menu_warning_label", "wait_menu", "entered_username_label", "cancel_button", "wait_menu_warning_label", "chat_menu", "chat_text_edit", "message_text_edit", "send_button", "host_or_client_label")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,7 +18,11 @@ start_menu = NodePath("StartMenu")
 username_text_edit = NodePath("StartMenu/UsernameTextEdit")
 host_button = NodePath("StartMenu/HostButton")
 join_button = NodePath("StartMenu/JoinButton")
-warning_label = NodePath("StartMenu/WarningLabel")
+start_menu_warning_label = NodePath("StartMenu/StartMenuWarningLabel")
+wait_menu = NodePath("WaitMenu")
+entered_username_label = NodePath("WaitMenu/EnteredUsernameLabel")
+cancel_button = NodePath("WaitMenu/CancelButton")
+wait_menu_warning_label = NodePath("WaitMenu/WaitMenuWarningLabel")
 chat_menu = NodePath("ChatMenu")
 chat_text_edit = NodePath("ChatMenu/ChatTextEdit")
 message_text_edit = NodePath("ChatMenu/MessageTextEdit")
@@ -82,7 +86,7 @@ anchor_bottom = 0.5
 offset_left = -75.0
 offset_top = -150.0
 offset_right = 325.0
-offset_bottom = -85.0
+offset_bottom = -85.00006
 grow_horizontal = 2
 grow_vertical = 2
 focus_neighbor_left = NodePath(".")
@@ -138,7 +142,7 @@ focus_previous = NodePath("../HostButton")
 theme_override_font_sizes/font_size = 40
 text = "Join Lobby"
 
-[node name="WarningLabel" type="Label" parent="StartMenu" unique_id=1943145844]
+[node name="StartMenuWarningLabel" type="Label" parent="StartMenu" unique_id=1943145844]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -148,7 +152,7 @@ anchor_bottom = 0.5
 offset_left = -138.0
 offset_top = 225.0
 offset_right = 138.0
-offset_bottom = 280.00024
+offset_bottom = 280.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.47058824, 0, 1)
@@ -157,7 +161,66 @@ theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 40
 text = "Warning Label"
 horizontal_alignment = 1
-vertical_alignment = 1
+
+[node name="WaitMenu" type="Control" parent="." unique_id=43165251]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="EnteredUsernameLabel" type="Label" parent="WaitMenu" unique_id=1713992670]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = -45.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 40
+text = "Entered username: x"
+
+[node name="CancelButton" type="Button" parent="WaitMenu" unique_id=280568426]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -68.0
+offset_right = 68.0
+offset_bottom = 63.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 40
+text = "Cancel"
+
+[node name="WaitMenuWarningLabel" type="Label" parent="WaitMenu" unique_id=1974254667]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -138.0
+offset_top = 125.0
+offset_right = 138.0
+offset_bottom = 180.00006
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.47058824, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 40
+text = "Warning Label"
+horizontal_alignment = 1
 
 [node name="ChatMenu" type="Control" parent="." unique_id=282802438]
 visible = false
@@ -246,4 +309,5 @@ text = "Host / Client"
 [connection signal="timeout" from="DotsTimer" to="." method="_on_dots_timer_timeout"]
 [connection signal="pressed" from="StartMenu/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="StartMenu/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="WaitMenu/CancelButton" to="." method="_on_cancel_button_pressed"]
 [connection signal="pressed" from="ChatMenu/SendButton" to="." method="_on_send_button_pressed"]
